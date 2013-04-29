@@ -120,11 +120,7 @@ module ReverseMarkdown
         when :blockquote
           "> "
         when :code
-          if parent == :pre
-            self.github_style_code_blocks ? "\n```\n" : "\n    "
-          else
-            " `"
-          end
+          handle_code_block parent, element
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             " ["
@@ -161,11 +157,7 @@ module ReverseMarkdown
         when :li, :blockquote, :root, :ol, :ul
           "\n"
         when :code
-          if parent == :pre
-            self.github_style_code_blocks ? "\n```" : "\n"
-          else
-           '` '
-          end
+          handle_code_block parent, element
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             "](#{element['href']}#{title_markdown(element)})"
@@ -214,6 +206,16 @@ module ReverseMarkdown
         raise ReverseMarkdown::ParserError, message
       elsif log_enabled && defined?(Rails)
         Rails.logger.__send__(log_level, message)
+      end
+    end
+
+    def handle_code_block(parent, element)
+      if parent == :pre or 
+        /^\s*\n/.match element.text or
+        element.text.length > 80 
+        self.github_style_code_blocks ? "\n```\n" : "\n    "
+      else
+        " `"
       end
     end
   end
