@@ -245,20 +245,20 @@ module ReverseMarkdown
 
     def substitute_em(element, parent)
       substitution = parent == :code ? '%%em%%' : '*'
-      unless element.text.strip.empty?
+      if element.text.strip.empty? or not (element.ancestors('em') + element.ancestors('i')).empty?
+        ''
+      else
         substitution if (element.ancestors('em') + element.ancestors('i')).empty?
       end
-
-      ''
     end
 
     def substitute_b(element, parent)
       substitution = parent == :code ? '%%b%%' : '**'
-      unless element.text.strip.empty?
+      if element.text.strip.empty? or not (element.ancestors('strong') + element.ancestors('b')).empty?
+        ''
+      else
         substitution if (element.ancestors('strong') + element.ancestors('b')).empty?
       end
-
-      ''
     end
   end
 end
