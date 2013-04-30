@@ -176,7 +176,7 @@ module ReverseMarkdown
         when :li, :blockquote, :root, :ol, :ul
           "\n"
         when :code
-          handle_code_block parent, element
+          "#{handle_code_block parent, element} "
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             "](#{element['href']}#{title_markdown(element)})"
