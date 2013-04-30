@@ -48,7 +48,9 @@ module ReverseMarkdown
     end
 
     def process_element(element)
+      parent = element.parent ? element.parent.name.to_sym : nil
       output = ''
+
       if element.text?
         text = process_text(element)
         if output.end_with?(' ') && text.start_with?(' ')
@@ -57,13 +59,16 @@ module ReverseMarkdown
           output << text
         end
       else
-        output << opening(element).to_s
+        incoming = opening(element).to_s
+        incoming.lstrip! if parent == :li
+        output << incoming
 
         markdown_chunks = element.children.map { |child| process_element(child) }
         remove_adjacent_whitespace!(markdown_chunks)
         output << markdown_chunks.join
 
-        output << ending(element).to_s
+        incoming = ending(element).to_s
+        output << incoming
       end
       output
     end
