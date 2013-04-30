@@ -135,7 +135,7 @@ module ReverseMarkdown
         when :blockquote
           "> "
         when :code
-          handle_code_block parent, element
+          " #{handle_code_block parent, element}"
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             " ["
@@ -232,7 +232,7 @@ module ReverseMarkdown
       if parent == :pre or is_implicit_code_block element
         self.github_style_code_blocks ? "\n```\n" : "\n    "
       else
-        " `"
+        "`"
       end
     end
 
