@@ -5,6 +5,7 @@ module ReverseMarkdown
     attr_accessor :li_counter
     attr_accessor :github_style_code_blocks
     attr_accessor :implicit_code_blocks
+    attr_accessor :implicit_code_length
 
     def initialize(opts={})
       self.log_level   = :info
@@ -12,6 +13,7 @@ module ReverseMarkdown
       self.li_counter  = 0
       self.github_style_code_blocks = opts[:github_style_code_blocks] || false
       self.implicit_code_blocks = opts[:implicit_code_blocks] || false
+      self.implicit_code_length  = opts[:implicit_code_length] || 60
     end
 
     def process_root(element)
@@ -212,15 +214,18 @@ module ReverseMarkdown
     end
 
     def handle_code_block(parent, element)
-      is_implicit_code_block = (implicit_code_blocks and
-        (/^\s*\n/.match element.text or
-        element.text.length > 70))
-
-      if parent == :pre or is_implicit_code_block
+      if parent == :pre or is_implicit_code_block element
         self.github_style_code_blocks ? "\n```\n" : "\n    "
       else
         " `"
       end
+    end
+
+    def is_implicit_code_block(element)
+      return false unless implicit_code_blocks
+
+      /^\s*\n/.match element.text or
+      element.text.length > self.implicit_code_length
     end
   end
 end
