@@ -67,7 +67,9 @@ module ReverseMarkdown
 
         markdown_chunks = element.children.map { |child| process_element(child) }
         remove_adjacent_whitespace!(markdown_chunks)
-        output << markdown_chunks.join
+        incoming = markdown_chunks.join
+        incoming.strip! if [:b, :strong, :em, :i].include? element.name.to_sym
+        output << incoming
 
         incoming = ending(element).to_s
         output << incoming
