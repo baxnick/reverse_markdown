@@ -6,12 +6,14 @@ module ReverseMarkdown
     attr_accessor :log_enabled, :log_level
     attr_accessor :li_counter
     attr_accessor :github_style_code_blocks
+    attr_accessor :implicit_code_blocks
 
     def initialize(opts={})
       self.log_level   = :info
       self.log_enabled = true
       self.li_counter  = 0
       self.github_style_code_blocks = opts[:github_style_code_blocks] || false
+      self.implicit_code_blocks = opts[:implicit_code_blocks] || false
     end
 
     def process_root(element)
@@ -122,11 +124,7 @@ module ReverseMarkdown
         when :blockquote
           "> "
         when :code
-          if parent == :pre
-            self.github_style_code_blocks ? "\n```\n" : "\n    "
-          else
-            " `"
-          end
+          handle_code_block parent, element
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             " ["
@@ -163,11 +161,7 @@ module ReverseMarkdown
         when :li, :blockquote, :root, :ol, :ul
           "\n"
         when :code
-          if parent == :pre
-            self.github_style_code_blocks ? "\n```" : "\n"
-          else
-           '` '
-          end
+          handle_code_block parent, element
         when :a
           if !element.text.strip.empty? && element['href'] && !element['href'].start_with?('#')
             "](#{element['href']}#{title_markdown(element)})"
@@ -216,6 +210,18 @@ module ReverseMarkdown
         raise ReverseMarkdown::ParserError, message
       elsif log_enabled && defined?(Rails)
         Rails.logger.__send__(log_level, message)
+      end
+    end
+
+    def handle_code_block(parent, element)
+      is_implicit_code_block = (implicit_code_blocks and
+        (/^\s*\n/.match element.text or
+        element.text.length > 70))
+
+      if parent == :pre or is_implicit_code_block
+        self.github_style_code_blocks ? "\n```\n" : "\n    "
+      else
+        " `"
       end
     end
   end
