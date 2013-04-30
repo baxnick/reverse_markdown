@@ -129,9 +129,9 @@ module ReverseMarkdown
           element.name =~ /h(\d)/
           "\n" + ('#' * $1.to_i) + ' '
         when :em, :i
-          element.text.strip.empty? ? '' : '_' if (element.ancestors('em') + element.ancestors('i')).empty?
+          substitute_em(element, parent)
         when :strong, :b
-          element.text.strip.empty? ? '' : '**' if (element.ancestors('strong') + element.ancestors('b')).empty?
+          substitute_b(element, parent)
         when :blockquote
           "> "
         when :code
@@ -170,9 +170,9 @@ module ReverseMarkdown
         when :h1, :h2, :h3, :h4, :h5, :h6 # /h(\d)/ for 1.9
           "\n"
         when :em, :i
-          element.text.strip.empty? ? '' : '_' if (element.ancestors('em') + element.ancestors('i')).empty?
+          substitute_em(element, parent)
         when :strong, :b
-          element.text.strip.empty? ? '' : '**' if (element.ancestors('strong') + element.ancestors('b')).empty?
+          substitute_b(element, parent)
         when :li, :blockquote, :root, :ol, :ul
           "\n"
         when :code
@@ -241,6 +241,24 @@ module ReverseMarkdown
 
       /^\s*\n/.match element.text or
       element.text.length > self.implicit_code_length
+    end
+
+    def substitute_em(element, parent)
+      substitution = parent == :code ? '%%em%%' : '*'
+      unless element.text.strip.empty?
+        substitution if (element.ancestors('em') + element.ancestors('i')).empty?
+      end
+
+      ''
+    end
+
+    def substitute_b(element, parent)
+      substitution = parent == :code ? '%%b%%' : '**'
+      unless element.text.strip.empty?
+        substitution if (element.ancestors('strong') + element.ancestors('b')).empty?
+      end
+
+      ''
     end
   end
 end
