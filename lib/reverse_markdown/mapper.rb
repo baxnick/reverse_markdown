@@ -1,3 +1,5 @@
+require 'digest'
+
 module ReverseMarkdown
   class Mapper
     attr_accessor :raise_errors
