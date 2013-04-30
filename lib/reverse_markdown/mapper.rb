@@ -104,7 +104,11 @@ module ReverseMarkdown
         when :ul, :root#, :p
           "\n"
         when :div
-          "\n"
+          if element.attr('class')
+            "\n<div markdown=\"1\" class=\"#{element.attr('class')}\">\n"
+          else
+            "\n"
+          end
         when :p
           if element.ancestors.map(&:name).include?('blockquote')
             "\n\n> "
@@ -156,7 +160,11 @@ module ReverseMarkdown
         when :p
           "\n\n"
         when :div
-          "\n"
+          if element.attr('class')
+            "\n</div>\n"
+          else
+            "\n"
+          end
         when :h1, :h2, :h3, :h4, :h5, :h6 # /h(\d)/ for 1.9
           "\n"
         when :em, :i
